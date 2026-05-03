@@ -4,10 +4,21 @@ require('dotenv').config()
 
 const app = express()
 
+const router = express.Router()
+
 app.use(cors())
 app.use(express.json())
 
-// app.use('/api/auth', require('./routes/auth'))
+const authenticate = require('./middleware/auth')
+const requireRole = require('./middleware/requireRole')
+
+
+// app.get('/', authenticate, async (req, res) => {
+//     console.log("you can pass let's goooo")
+//     res.send('OK')
+// })
+
+app.use('/api/auth', require('./routes/auth'))
 // app.use('/api/projects', require('./routes/projects'))
 // app.use('/api/tasks', require('./routes/tasks'))
 // app.use('/api/members', require('./routes/members'))
