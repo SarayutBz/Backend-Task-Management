@@ -34,10 +34,10 @@ router.post('/login', async (req, res, next) => {
             return res.status(400).json({ message: 'Please fill out the email and password' })
 
         const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email])
-        if (row.length === 0)
+        // console.log("row : " , [rows])
+        if (rows.length === 0)
             return res.status(401).json({ message: 'email or password incorrect' })
-        console.log("row : ",[row])
-        console.log("row : ",[row])
+
         const user = rows[0]
         const valid = await bcrypt.compare(password, user.password_hash)
         if (!valid)

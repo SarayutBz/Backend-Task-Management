@@ -5,6 +5,15 @@ const requireRole = require('../middleware/requireRole')
 
 const router = express.Router()
 
+router.get('/test', async (req, res, next) => {
+    try {
+        const [rows] = await pool.query(`SELECT p.* FROM projects p`)
+        res.json(rows)
+    } catch (err) {
+        next(err)
+    }
+})
+
 // GET /api/projects — ดู projects ที่ตัวเองเป็น member
 router.get('/', authenticate, async (req, res, next) => {
     try {
@@ -24,11 +33,12 @@ router.get('/', authenticate, async (req, res, next) => {
 router.get('/:projectId', authenticate, requireRole('owner', 'member'), async (req, res, next) => {
     try {
         const [rows] = await pool.query(
-            `SELECT p.*, u.name AS owner_name
+            `SELECT p.*, u.name AS owner_name, pm.role
        FROM projects p
        JOIN users u ON p.owner_id = u.id
+       JOIN project_members pm ON p.id = pm.project_id AND pm.user_id = ?
        WHERE p.id = ?`,
-            [req.params.projectId]
+            [req.user.userId, req.params.projectId]
         )
         if (rows.length === 0)
             return res.status(404).json({ message: 'ไม่พบ project' })

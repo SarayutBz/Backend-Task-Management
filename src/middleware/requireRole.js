@@ -1,14 +1,16 @@
-const pool = require('../db')
+const pool = require('../config/db')
 
 
 function requireRole(...roles) {
 
     return async (req, res, next) => {
         try {
+            console.log("userId:", req.user.userId)
+            console.log("projectId:", req.params.projectId)
             const projectId = req.params.projectId || req.body.projectId
             const [rows] = await pool.query(
-                `SELECT role FROM members WHERE project_id = ?  AND user_id = ? `,
-                [projectId, req.user.id]
+                `SELECT role FROM project_members  WHERE project_id = ?  AND user_id = ? `,
+                [projectId, req.user.userId]
             )
 
             if (!rows.length) {
@@ -27,3 +29,5 @@ function requireRole(...roles) {
         }
     }
 }
+
+module.exports = requireRole

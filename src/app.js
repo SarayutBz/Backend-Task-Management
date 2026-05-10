@@ -13,16 +13,16 @@ const authenticate = require('./middleware/auth')
 const requireRole = require('./middleware/requireRole')
 
 
-// app.get('/', authenticate, async (req, res) => {
-//     console.log("you can pass let's goooo")
-//     res.send('OK')
-// })
+app.get('/', async (req, res) => {
+    console.log("you can pass let's goooo")
+    res.send('OK')
+})
 
 app.use('/api/auth', require('./routes/auth'))
-// app.use('/api/projects', require('./routes/projects'))
-// app.use('/api/tasks', require('./routes/tasks'))
-// app.use('/api/members', require('./routes/members'))
-// app.use('/api/comments', require('./routes/comments'))
+app.use('/api/projects', require('./routes/projects'))
+app.use('/api/tasks', require('./routes/tasks'))
+app.use('/api/members', require('./routes/members'))
+app.use('/api/comments', require('./routes/comments'))
 
 
 app.use((err, req, res, next) => {
