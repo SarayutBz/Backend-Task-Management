@@ -21,13 +21,14 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -prootpassword"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,9 +41,18 @@ jobs:
         working-directory: backend
         run: npm ci
 
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h 127.0.0.1 -uroot -prootpassword && break
+            echo "waiting for mysql..."
+            sleep 2
+          done
+
       - name: Import schema
         run: |
-          mysql -h 127.0.0.1 -u appuser -papppassword task_manager < sql/schema.sql
+          mysql -h 127.0.0.1 -uroot -prootpassword task_manager < backend/sql/schema.sql
+          mysql -h 127.0.0.1 -uroot -prootpassword task_manager < backend/sql/seed.sql
 
       - name: Run lint
         working-directory: backend
