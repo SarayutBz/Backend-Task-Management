@@ -30,24 +30,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # =========================
-      # Setup Node (NO CACHE -> FIX ERROR 100%)
-      # =========================
+      # Node setup (NO working-directory)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # =========================
-      # Install dependencies
-      # =========================
+      # Install deps (ROOT)
       - name: Install dependencies
-        working-directory: backend
         run: npm ci
 
-      # =========================
-      # Wait for MySQL ready
-      # =========================
+      # Wait MySQL ready
       - name: Wait for MySQL
         run: |
           for i in {1..30}; do
@@ -56,26 +49,18 @@ jobs:
             sleep 2
           done
 
-      # =========================
-      # Import DB schema + seed
-      # =========================
+      # Import DB
       - name: Setup database
         run: |
-          mysql -h 127.0.0.1 -uroot -prootpassword task_manager < backend/sql/schema.sql
-          mysql -h 127.0.0.1 -uroot -prootpassword task_manager < backend/sql/seed.sql
+          mysql -h 127.0.0.1 -uroot -prootpassword task_manager < sql/schema.sql
+          mysql -h 127.0.0.1 -uroot -prootpassword task_manager < sql/seed.sql
 
-      # =========================
       # Lint
-      # =========================
       - name: Run lint
-        working-directory: backend
         run: npm run lint --if-present
 
-      # =========================
       # Test
-      # =========================
       - name: Run tests
-        working-directory: backend
         env:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
